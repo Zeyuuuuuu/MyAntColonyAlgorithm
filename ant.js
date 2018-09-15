@@ -22,6 +22,7 @@ var cncTimer = [0, 0, 0, 0, 0, 0, 0, 0];
 var cncFirst = [true, true, true, true, true, true, true, true]
 //处理时间
 var cncTime = 560;
+var cncTime2 = [400, 378]
 
 /** 信息素矩阵(记录每条路径上当前信息素含量，初始状态下均为0) */
 var pheromoneMatrix = [];
@@ -119,7 +120,7 @@ function initTime() {
             }
         }
     }
-    console.log(moveTime)
+    // console.log(moveTime)
 
     operateTime[0] = t[4]; //s2,4,6,8
     operateTime[1] = t[3]; //s1,3,5,7
@@ -192,8 +193,8 @@ function antSearch(iteratorNum, antNum) {
                     cncTimer[cnc - 1] = cncTime;
 
                     //cnc爆炸
-                    if (enableError && cncTime > random(0, cncTime * 100)) {
-                        cncTimer[cnc - 1] = random(600, 1200);
+                    if (enableError && cncTime > random(0, cncTime * 100, true)) {
+                        cncTimer[cnc - 1] = random(600, 1200, true);
                         cncFirst[cnc - 1] = true;
                         console.log("蚂蚁" + (antCount + 1) + "在做任务" + (taskCount + 1) + "时，" + cnc + "炸了");
                         taskCount--;
@@ -212,6 +213,8 @@ function antSearch(iteratorNum, antNum) {
                 else if (2 === stage) {
                     // 第taskCount个任务分配给cnc号机
                     var cnc = assignTask(antCount, taskCount, antLocation);
+                    if (cnc === CNCpathMatrix_oneAnt[taskCount - 1])
+                        console.log(cnc)
                     CNCpathMatrix_oneAnt.push(cnc);
 
                     //如果需要移动
@@ -228,7 +231,7 @@ function antSearch(iteratorNum, antNum) {
                     operate.push((cnc % 2))
                     GRVpathMatrix_oneAnt.push(operate)
                     cncTimerUpdate(operateTime[(cnc % 2)]);
-                    cncTimer[cnc - 1] = cncTime;
+                    cncTimer[cnc - 1] = cncTime2[cncProcess[cnc - 1] - 1];
 
                     //根据上下料cnc判断手上情况
                     //如果是处 手上肯定是空的(然后就破处了)
@@ -242,8 +245,8 @@ function antSearch(iteratorNum, antNum) {
                         handState = cncProcess[cnc - 1];
                     }
                     //cnc爆炸
-                    if (enableError && cncTime > random(0, cncTime * 100)) {
-                        cncTimer[cnc - 1] = random(600, 1200);
+                    if (enableError && cncTime2[cncProcess[cnc - 1] - 1] > random(0, cncTime2[cncProcess[cnc - 1] - 1] * 100, true)) {
+                        cncTimer[cnc - 1] = random(600, 1200, true);
                         cncFirst[cnc - 1] = true;
                         taskCount--;
                         console.log(cnc - 1 + "炸了");
@@ -320,8 +323,10 @@ function randomAssign() {
     for (var i in cncTimer) {
 
         //有两道工序时，如果手上有半成品，跳过所有只能做1号工序的傻逼机器（他们挂不挂机 挂机多久都与我无关！）
-        //有两道工序，手上是空的，跳过所有只能做2号的
-        if (2 === stage && ((1 === handState && 1 === cncProcess[i]) || (0 === handState && 2 === cncProcess[i])))
+        //如果空手，跳过2号处
+        if (2 === stage &&
+            (1 === handState && 1 === cncProcess[i]) ||
+            (0 === handState && 2 === cncProcess[i] && cncFirst[i]))
             continue;
         if (0 === cncTimer[i]) {
             noZero = false;
@@ -335,8 +340,8 @@ function randomAssign() {
     }
     // 若当前蚂蚁编号在临界点之后，则采用随机分配方式
 
-    //一道工序 或者 两道工序手上是空的
-    if (1 === stage || (2 === stage && 0 === handState)) {
+    //一道工序 随便抽
+    if (1 === stage) {
         var next = random(1, nodeNum, true);
         //抽签抽到不挂机的 就重新抽！
         while (0 !== cncTimer[next - 1])
@@ -344,20 +349,20 @@ function randomAssign() {
         // console.log(next
         return next;
     }
-    //两道工序 且手上是半成品 
-    else if (2 === stage && 1 === handState) {
+    //两道工序，手上空空
+    else if (2 === stage && 0 === handState) {
         var next = random(1, nodeNum, true);
         //我抽签抽到你一号我也不要！重新抽！
-        while (0 !== cncTimer[next - 1] && 1 === cncProcess[i])
+        while (0 !== cncTimer[next - 1] || (2 === cncProcess[next - 1] && cncFirst[next - 1]))
             next = random(1, nodeNum, true)
         // console.log(next
         return next;
     }
-    //两道工序 且手上是空的 
+    //两道工序 且手上是半成品
     else if (2 === stage && 1 === handState) {
         var next = random(1, nodeNum, true);
-        //我抽签抽到你二号不要
-        while (0 !== cncTimer[next - 1] && 2 === cncProcess[i])
+        //我抽签抽到你一号我也不要！重新抽！
+        while (0 !== cncTimer[next - 1] || 1 === cncProcess[next - 1])
             next = random(1, nodeNum, true)
         // console.log(next
         return next;
@@ -371,11 +376,14 @@ function pheromoneAssign(taskCount, antLocation) {
     for (var i = 0; i < nodeNum; i++) {
         //遍历所有cnc
         //如果只有一道工序（且该cnc挂机），
-        //或者有两道工序的，我空手(0)，并且该cnc是第一道工序的(1)（且该cnc挂机）
-        //或者有两道工序的，我手上有半成品(1)，并且该cnc是第二道工序的(2)（且该cnc挂机）
+        //或者有两道工序的，我手上有半成品，并且该cnc是"第二道工序的"（且该cnc挂机）
+        //或者有两道工序的，我手上是空的，并且该cnc是不是"第二道处"（且该cnc挂机）
         //则该cnc参与轮盘竞争
         if (0 === cncTimer[i] &&
-            (1 === stage || (2 === stage && handState + 1 === cncProcess[i]))) {
+            (1 === stage ||
+                (2 === stage && 1 === handState && 2 === cncProcess[i]) ||
+                (2 === stage && 0 === handState && !(2 === cncProcess[i] && cncFirst[i]))
+            )) {
             selectCncProbs[i] = Math.pow(pheromoneMatrix[taskCount][i], ALPHA) * Math.pow((1 / (moveTime[antLocation][Math.round((i + 1) / 2)] + 1)), BETA)
             totalProb += selectCncProbs[i];
         }
