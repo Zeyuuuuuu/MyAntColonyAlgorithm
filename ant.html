@@ -1,0 +1,31 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+</head>
+
+<body>
+    <script src="ant.js"></script>
+
+    <label>taskNum</label>
+    <input id="taskNum" value="10">
+    <label>nodeNum</label>
+    <input id="nodeNum" value="8">
+    <label>iteratorNum</label>
+    <input id="iteratorNum" value="10">
+    <label>antNum</label>
+    <input id="antNum" value="10">
+    <button onclick="random(1,8)">Random</button>
+    <button onclick="aca()">GO</button>
+
+    <div>
+        <button onclick="changeStage()">stage</button>
+        <label id="stage">1</label>
+    </div>
+    <div>
+        <button onclick="changeErrorState()">error</button>
+        <label id="error">false</label>
+    </div>
+</body>
+
+</html>
