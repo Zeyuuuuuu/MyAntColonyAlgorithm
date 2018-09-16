@@ -1,23 +1,85 @@
-<html>
+<html ng-app="acaApp">
 
 <head>
     <meta charset="UTF-8">
+
+    <script src="ant.js"></script>
 </head>
 
-<body>
-    <script src="ant.js"></script>
+<body ng-controller="acaCtrl">
+    <div>
+        <label>迭代信息</label>
+        <label>taskNum</label>
+        <input ng-model="taskNum" value="10">
+        <label>nodeNum</label>
+        <input ng-model="nodeNum" value="8">
+        <label>iteratorNum</label>
+        <input ng-model="iteratorNum" value="10">
+        <label>antNum</label>
+        <input ng-model="antNum" value="10">
+    </div>
+    <div>
+        <label>cnc加工时间</label>
 
-    <label>taskNum</label>
-    <input id="taskNum" value="10">
-    <label>nodeNum</label>
-    <input id="nodeNum" value="8">
-    <label>iteratorNum</label>
-    <input id="iteratorNum" value="10">
-    <label>antNum</label>
-    <input id="antNum" value="10">
-    <button onclick="random(1,8)">Random</button>
-    <button onclick="aca()">GO</button>
+        <label>cncTime1</label>
+        <input ng-model="cncTime" value="560">
+        <label>cncTime2-1</label>
+        <input ng-model="cncTime2[0]" value="400">
+        <label>cncTime2-2</label>
+        <input ng-model="cncTime2[1]" value="378">
+    </div>
+    <div>
+        <label>工序号（情况二）</label>
 
+        <label>cnc1</label>
+        <input ng-model="cncProcess[0]" value="1">
+        <label>cnc2</label>
+        <input ng-model="cncProcess[1]" value="2">
+        <label>cnc3</label>
+        <input ng-model="cncProcess[2]" value="1">
+        <label>cnc4</label>
+        <input ng-model="cncProcess[3]" value="2">
+        <label>cnc5</label>
+        <input ng-model="cncProcess[4]" value="1">
+        <label>cnc6</label>
+        <input ng-model="cncProcess[5]" value="2">
+        <label>cnc7</label>
+        <input ng-model="cncProcess[6]" value="1">
+        <label>cnc8</label>
+        <input ng-model="cncProcess[7]" value="2">
+    </div>
+    <div>
+        <label>grv移动操作时间</label>
+        <label>移动一位</label>
+        <input ng-model="t[0]" value="20">
+        <label>移动二位</label>
+        <input ng-model="t[1]" value="33">
+        <label>移动三位</label>
+        <input ng-model="t[2]" value="46">
+        <label>1357上下料</label>
+        <input ng-model="t[3]" value="28">
+        <label>2468号cnc上下料</label>
+        <input ng-model="t[4]" value="31">
+        <label>清理时间</label>
+        <input ng-model="t[5]" value="25">
+    </div>
+
+    <div>
+        <label>参数</label>
+        <label>p 信息素衰弱</label>
+        <input ng-model="p" value="0.5">
+        <label>q 信息素增强</label>
+        <input ng-model="q" value="2">
+        <label>ALPHA</label>
+        <input ng-model="ALPHA" value="1">
+        <label>BETA</label>
+        <input ng-model="BETA" value="5">
+    </div>
+
+    <div>
+        <button onclick="test()">test</button>
+        <button onclick="aca()">GO</button>
+    </div>
     <div>
         <button onclick="changeStage()">stage</button>
         <label id="stage">1</label>
@@ -25,6 +87,7 @@
     <div>
         <button onclick="changeErrorState()">error</button>
         <label id="error">false</label>
+    </div>
     </div>
 </body>
 
